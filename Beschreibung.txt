@@ -1,0 +1,104 @@
+
+
+
+Beispiel:
+12236,1651,128,241,18,52,97,8,12,1,32,162,22,84,162,255,255,255,255,0,0,60,163,88,65,164,0,255,0,255,255,255,255,0,0,0,0,0,0,0,0,255,255,64,64,64,64,255,242,255,255,255,0,0,5,8,255,255,5,$GPRMC,235955.300,V,,,,,0.00,0.00,050180,,,N*4F
+# Filtern (Beschreibung-Fehlermeldungen)
+Beschreibung:
+Data1	Time	Millisecond
+Data2	AFR			# Data/100
+----------------------------------------------------
+KWP2000: 
+(Gefiltert)
+++++++++++++++++++++++++++++++++++++++++++++++++++++
++ 0	Send	"0x80"		Header
++ 1	Send	"0x12"		Adress
++ 2	Send	"0xF1"		Adress
++ 3	Send	"0x02"		Databits
++ 4	Send	"0x21"		Function
++ 5	Send	"0x08"		Fumction
++ 6	Send	"0xAE"		Checksum
+++++++++++++++++++++++++++++++++++++++++++++++++++++
++ 0	Recv	"0x80"	128	Header
++ 1	Recv	"0x12"	18	Adress
++ 2	Recv	"0xF1"	241	Adress
++ 3	Recv	"0x02"		Databits
++ 4	Recv	"0x21"		Function
++ 5	Recv	"0x08"		Fumction
++ 6	Recv	"0xAE"		Checksum
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+(Data3-59)
+7-1	Recv	"0x80"	128	Header
+8-2	Recv	"0xF1"	241	Adress
+9-3	Recv	"0x12"	18	Adress
+10-4	Recv	"0x34"	52	Databits
+11-5	Recv	"0x61"	97	Function
+12-6	Recv	"0x08"	8	Function
+13-7	Recv	
+14-8	Recv	
+15-9	Recv	
+16-10	Recv
+17-11	Recv	
+18-12	Recv	* AFR
+19-13	Recv	* AFR	
+20-14	Recv	
+21-15	Recv
+22-16	Recv	* BOOST
+23-17	Recv	* SPEED KMH									# DATA 16*2			
+24-18	Recv	RPM 										# DATA18* 100;
+25-19	Recv	* RPM 										# RPM + DATA19/10;
+26-20	Recv	TPS 				55-224						# (DATA20 - 55) * 100 / (224-55);
+27-21	Recv	IAP Intake Air Pressure 	161
+28-22	Recv	ECT Engine Temp			88=25 89=26 108=37 118=43 125=48 134=53 146=60	# (DATA22 - 48) * 130 / 208;
+29-23	Recv	IAT Intake Temp			88=25 89=26 108=37 118=43 125=48 134=53 146=60	# (DATA23 - 48) * 130 / 208;
+30-24	Recv	OAP Outside Air Pressure 	161
+31-25	Recv	* Batt Voltage 			12,5=161					# Data / 12,5
+32-26	Recv	* O2 Sensor
+33-27	Recv	GPS Gear PositionPS		0=Neutral 1=1
+34-28	Recv	
+35-29	Recv	
+36-30	Recv	
+37-31	Recv	
+38-32	Recv	* FUEL HI 1
+39-33	Recv	* FUEL LO 1
+40-34	Recv	* FUEL HI 2
+41-35	Recv	* FUEL LO 2
+42-36	Recv	* FUEL HI 3
+43-37	Recv	* FUEL LO 3
+44-38	Recv	* FUEL HI 4
+45-39	Recv	* FUEL LO 4
+46-40	Recv	
+47-41	Recv	
+48-42	Recv	* IGN1
+49-43	Recv	* IGN2
+50-44	Recv	* IGN3
+51-45	Recv	* IGN4
+52-46	Recv	
+53-47	Recv	Second Throtle Valve Position TPS 0-255						# DATA47 * 255/ 100;
+54-48	Recv	
+55-49	Recv	
+56-50	Recv	
+57-51	Recv	
+58-52	Recv	* Pair
+59-53	Recv	CLUTCH / MAP SELECT 								# Clutch close = 0x05/0x04 - Clutch open = 0x14/0x15 - MS0 = 0x04/0x14 - MS1 = 0x05/0x15
+60-54	Recv	Neutral=8 Gear=10
+61-55	Recv	* HOX ON
+62-56	Recv	* BOOST 3
+63-57	Recv	Checksum
+Air Pressure = Intake Air Pressure - Outside Air Pressure
+----------------------------------------------------
+GPS:
+(Data60-70)
+123519       Fix taken at 12:35:19 UTC
+A            Status A=active or V=Void.
+4807.038     Latitude 48 deg 07.038
+N
+01131.000    Longitude 11 deg 31.000
+E
+022.4        Speed over the ground in knots
+084.4        Track angle in degrees True
+230394       Date - 23rd of March 1994
+003.1,W      Magnetic Variation
+*6A          The checksum data, always begins with *
+

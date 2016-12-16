@@ -1,0 +1,643 @@
+K line
+http://99460.activeboard.com/t39649986/ecueditor-25-with-gixxer-k5-k6-enginedata/
+http://scantool.imechatronics.com/vagcom_kkl_usb_interface.htm
+http://www.ftdichip.com/Support/Utilities.htm
+http://ecuhacking.activeboard.com/t22573776/sds-protocol/
+http://99460.activeboard.com/t44494547/where-to-get-the-gsxr-1000-k5-connector/
+http://ecuhacking.activeboard.com/forum.spark?aBID=99460&p=3&topicID=39649986&page=1&sort=newestFirst
+http://www.healtech-electronics.com/
+http://www.mrufer.ch/motorrad/forum_linked/flash_gsx-r_k5.pdf
+http://ecuhacking.activeboard.com/t56234221/kds-protocol/
+http://ecuhacking.activeboard.com/t22573776/sds-protocol/
+http://www.blafusel.de/obd/obd2_kw-interf-b.html
+http://kaele.com/~kashima/car/busa/ecu.html
+http://forum.arduino.cc/index.php?topic=72044.10;wap2
+
+CHECKSUM = 8bit Sum
+
+>ATZ
+ELM327 v1.5
+>ATWM8012F1013E  (set a special keep alive message)
+OK
+>ATSH8112F1  (set a header for first negotiaton)
+OK
+>ATFI  (initialize bus)
+BUS INIT: OK
+>ATSH8012F1  (set a header for data transaction)
+OK
+>1A9A   (Read ECU ID)
+5A 9A 33 32 39 32 30 2D 30 .....
+>2108   (Read Data by Local ID)
+61 08 0F 02 01 A0 02 02 A0 .....
+>82  (Close a connection)
+C2
+>ATPC  (ELM Protocl Close)
+OK
+
+KDS KWP2000
+10417 baud 8N1
+5000000 / 480 = 10417 (10400)
+
+Messagge (request) sent periodically from the GEAR INDICATOR (constant):    80 11 F1 02 21 0B B0
+Byte    Name                Value        Description
+-----------------------------------------------
+0	Format Byte	0x80	Address mode: with address information, physical addressing
+1	Target Byte	0x11	Address of target devide (ECU)
+2	Source Byte	0xF1	Address of source device (GEAR INDICATOR)
+3	Length Byte	0x02	Two byte following...
+4	Service ID	0x21	ReadDataByLocallIdentifier
+5	Parameter name	0x0B	"Gear position" Parameter
+6	Checksum	0xB0	Checksum = 80+11+F1+02+21+0B module 0xFF (OK)
+
+Messagge replied by the ECU:       
+80 F1 11 03 61 0B 00 F1     (IDLE)
+80 F1 11 03 61 0B 01 F2     (GEAR 1)
+80 F1 11 03 61 0B 02 F3     (GEAR 2)
+...
+80 F1 11 03 61 0B 06 F7     (GEAR 6)
+
+Byte    Name                Value        Description
+-----------------------------------------------
+0    Format Byte	0x80	Address mode: with address information, physical addressing
+1    Target Byte	0xF1	Address of target devide (GEAR INDICATOR)
+2    Source Byte	0x11	Address of source device (ECU)
+3    Length Byte	0x03	Three byte following...
+4    Service ID		0x61	Positive reply to Request ReadDataByLocallIdentifier
+5    Parameter name	0x0B	"Gear position" Parameter
+6    Parameter value    n	n = gear position value
+7    Checksum		0xF1+n	Checksum = 80+F1+11+03+61+0B+n module 0xFF (OK)
+
+1. The GEAR INDICATOR put the K-LINE low for 25ms and high again for other 25ms (fast initialisation).
+
+2. START COMMUNICATION REQUEST is sent by the gear indicator with frame: 81 11 F1 81 04 
+
+Byte    Name                Value        Description
+-----------------------------------------------
+0    Format Byte           0x81        Address mode: with address information, physical addressing (message is 1 Byte long)
+1    Target Byte           0x11        Address of target devide (ECU)
+2    Source Byte           0xF1        Address of source device (GEAR INDICATOR)
+3    Request service ID    0x81        START COMMUNICATION REQUEST
+4    Checksum              0x04        Checksum 04 = 81+11+F1+81 module FF
+
+3. ECU replies with ok: 80 F1 11 03 C1 EA 8F BF 
+
+Byte    Name                Value        Description
+-----------------------------------------------
+0    Format Byte           0x80        Address mode: with address information, physical addressing
+1    Target Byte           0xF1        Address of target devide (GEAR INDICATOR)
+2    Source Byte           0x11        Address of source device (ECU)
+3    Length Byte           0x03        3 Bytes following...
+4    Response              0xC1        START COMMUNICATION REQUEST ACCEPTED
+5    Key Byte 1            0xEA        Header with targe and source address information 
+6    Key Byte 2            0x8F        Additional length byte used
+7    Checksum              0xBF        Checksum BF = 80+F1+...+8F module FF
+
+4. Gear indicator asks for starting diagnostic sessione with frame: 80 11 F1 02 10 80 14 
+
+Byte    Name                Value        Description
+-----------------------------------------------
+0    Format Byte           0x80        Address mode: with address information, physical addressing
+1    Target Byte           0x11        Address of target devide (ECU)
+2    Source Byte           0xF1        Address of source device (GEAR INDICATOR)
+3    Length Byte           0x02        2 Bytes following...
+4    Request service ID    0x10        START DIAGNOSTIC REQUEST
+5    diagostic mode        0x80        manufacterSpecific
+6    Checksum              0x14        Checksum
+
+5. ECU replies with OK: 80 F1 11 02 50 80 54 
+
+Byte    Name                Value        Description
+-----------------------------------------------
+0    Format Byte           0x80        Address mode: with address information, physical addressing
+1    Target Byte           0xF1        Address of target devide (GEAR INDICATOR)
+2    Source Byte           0x11        Address of source device (ECU)
+3    Length Byte           0x02        2 Bytes following...
+4    Request service ID    0x50        START DIAGNOSTIC REQUEST ACCEPTED
+5    diagostic mode        0x80        manufacterSpecific
+6    Checksum              0x54        Checksum
+
+
+WATER TEMPERATURE	80 11 F1 02 21 06 AB
+TEMP = 50/75 * VALUE - 38,67
+Example: Value 0xD0 -> 100°C
+
+Read Data By Local ID
+21 00	4 bytes
+21 01	1 byte
+21 02	1 byte
+21 03	2 bytes
+21 04	2 bytes	 TPS
+21 05	2 bytes	 Air Pressure
+21 06	1 byte	 ECT
+21 07	1 byte	 Intake Air Temperature
+21 08	2 bytes	 Abs Pressure
+21 09	2 bytes
+21 0A	1 byte
+21 0B	1 byte
+21 0C	2 bytes
+
+
+For SDS protocol, Temperature is calculated using the formula below :
+Temp = ( [Hex value] - 48) / 1.6
+If I take your value 0xD0 (208 dec) I have : (208 - 48) / 1.6 = 100°C
+
+RPM = Value*100/255
+Throttle position (°) = Value*125/255
+Manifold pressure = (Value*5 - 153)*133/4/255
+Temperature (C) = Value*160/255 - 30
+Temperature (F) = Value*288/255 - 22
+Voltage = Value*20/255
+Secondary throttle position (%) = Value*100/255
+EXCVA sensor = Value*100/255
+
+MXP wrote:
+- Don't forget to implement in your code the initialise sequence (see Pulse25ms(); in my code) to start up the communication with the ECU. 
+This must be done by your micro. a simple "gateway" is not enought because this sequence doens't correspond to any byte to be sent from your laptop. 
+Otherwise you won't communicate.
+Actually sending a 0x00 at 360 baud or using a timed break works. I've connected to KDS, SDS, and ADS using just an FTDI 232TTL with a Kline level converter.
+
+10    Start Diagnostic Session
+11    ECU Reset
+12    Read Freeze Frame Data
+13    Read Diagnostic Trouble Codes
+14    Clear Diagnostic Information
+17    Read Status Of Diagnostic Trouble Codes
+18    Read Diagnostic Trouble Codes By Status
+1A    Read Ecu Id
+20    Stop Diagnostic Session
+21    Read Data By Local Id
+22    Read Data By Common Id
+23    Read Memory By Address
+25    Stop Repeated Data Transmission
+26    Set Data Rates
+27    Security Access
+2C    Dynamically Define Local Id
+2E    Write Data By Common Id
+2F    Input Output Control By Common Id
+30    Input Output Control By Local Id
+31    Start Routine By Local ID
+32    Stop Routine By Local ID
+33    Request Routine Results By Local Id
+34    Request Download
+35    Request Upload
+36    Transfer data
+37    Request transfer exit
+38    Start Routine By Address
+39    Stop Routine By Address
+3A    Request Routine Results By Address
+3B    Write Data By Local Id
+3D    Write Memory By Address
+3E    Tester Present
+81 -> xx xx    Start Communication
+82    Stop Communication
+83    Access Timing Parameters
+85    Start Programming Mode
+
+14 Clear Diagnostic Information
+18 Read Diagnostic Trouble Codes By Status
+1A Read Ecu Id
+21 Read Data By Local Id
+3E Tester Present
+82 Stop Communication
+A5 Test outputs
+
+81 establish communications is not in the list but I'm assuming it is a special case. 
+ 
+Fastinit:
+______       _____         ____        ____ 
+------\_____/      \/\/\/\/    \/\/\/\/
+300ms    25ms  25ms  packet     response 
+1) Wait for 300ms with K line high.
+2) Pull K line low for 25 +/- 1 ms
+3) Let K line rise high and wait 25ms
+4) init serial connection to 10400 baud, 8N1, 1=0Volt 0=12Volt, least significant bit first
+5) send package c1 33 f1 81 66    33=dest, f1=our tester id, 81=start comms
+6) wait for response 83 f1 01 c1 e9 8f ae   01=physical address, c1=response ok (7f=fail), e9=kb1, 8f=kb2
+
+Slowinit:
+_______ S ___ 2 3 ___ 6 7 ___         ___        ____ 
+-------\_/0 1\___/4 5\___/P  \/\/\/\/    \/\/\/\/
+300ms  200 400 400 400 400 250 packet     response 
+
+1) Wait for 300ms with K line high.
+2) send a byte 33 hex at 5 baud. 200ms per bit
+startbit:      200ms low
+databit0,1:    400ms high
+databit2,3:    400ms low
+databit4,5:    400ms high
+databit6,7:    400ms low
+stopbit+pause: 250ms high
+4) init serial connection to 10400 baud, 8N1, 1=0Volt 0=12Volt, least significant bit first
+5) send package c1 33 f1 81 66    33=dest, f1=our tester id, 81=start comms
+6) wait for response 83 f1 01 c1 e9 8f ae   01=physical address, c1=response ok (7f=fail), e9=kb1, 8f=kb2 
+
+The comm protocol itself was figured out by RR several posts back. Basically its:
+Command 80, destination, source, # of data bytes, data bytes, checksum.
+The starting packet is a little different, using Command 81 instead of 80 and not showing a data byte count.
+
+propeller --> ECU: 80 12 F1 02 21 08 AE
+ECU --> propeller:
+1-80 header/format
+2-F1 header/destination
+3-12 header/source
+4-34 #bytes of data
+5-61 response type (dump of sensor data)
+6-08 
+7-13
+8-16
+9-50
+10-E0
+11-01
+12-05
+13-A2
+14-FF
+15-FF
+16-FF
+17-FF
+18-00
+19-00
+20-00 <-- throttle position
+21-FF <-- IAP1
+22-00 <-- ECT engine coolant temp
+23-00 <-- IAT intake air temp
+24-FF
+25-00
+26-FF
+27-00
+28-FF <-- IAP2
+29-FF
+30-FF
+31-FF
+32-00
+33-00
+34-00
+35-00
+36-FF
+37-FF
+38-FF
+39-FF
+40-FF
+41-FF
+42-40
+43-40
+44-FF
+45-FF
+46-FF
+47-00 <-- STP secondary throttle pos
+48-FF
+49-FF
+50-FF
+51-FF
+52-00
+53-00 <-- clutch position
+54-40 <-- neutral
+55-FF
+56-FF
+57-C7 <-- checksum
+
+Some of you may find also this interesting - not tested yet so may not work as its only based on reading the disassembled code. 
+
+80 12 F1 02 21 08 monitor sensor data 
+80 12 F1 03 14 00 00 clear dtc 
+80 12 F1 04 18 00 00 00 dtc monitoring 
+80 12 F1 01 3e keep alive 
+not all below mentioned are tested... 
+80 12 F1 06 a5 01 80 00 00 00 set pair on 
+80 12 F1 06 a5 01 00 00 00 00 set pair off 
+80 12 F1 06 a5 02 not applicable 
+80 12 F1 06 a5 03 80 00 00 CKS set excva on 
+80 12 F1 06 a5 03 00 00 00 CKS set excva off 
+80 12 F1 06 a5 02 not applicable 
+80 12 F1 06 a5 05 28 RPM 00 CKS set ics rpm value, value needs to be between 54 and A0, rpm is =(HEX2DEC(RPM)*2^5)/2.56 
+80 12 F1 06 a5 06 80 00 00 CKS set fan on 
+80 12 F1 06 a5 06 00 00 00 CKS set fan off 
+80 12 F1 06 a5 07 80 00 00 CKS set evap on 
+80 12 F1 06 a5 07 00 00 00 CKS set evap off
+
+
+ATSP05 - this is to set it to KWP2000 short init
+OK
+at sh 81 12 F1 - this is to set the response byte
+OK
+
+More info ....
+when I put ELM327 http://www.elmelectronics.com/DSheets/ELM327DS.pdf to listen the ecu while SDS is communicating with it I can see the traffic which I guess is from ELM to ECU. In this case its message:
+02 21 08
+Then I can monitor also the Clear all DTC:s and e.g. setting pair on and off commands, and of course the keepalive commands 01 3E.
+The chinese version I have can not skip the initiliazion sequens and some other new KWP commands implemeted in ELM so I would guess there is something in this.
+First line when starting to monitor seems like all the parameters are received, but after that only 02 21 08.
+----------------------
+Initialization sequence
+02 1A 9A
+02 1A 91
+then only keepalives
+01 3E
+and when data monitoring starts
+02 21 08
+When closing connection 
+01 82
+------------------------
+Makes me to wonder why the responses are not seen ?
+Had the additional header bytes monitoring off, so in real life you see 80 12 F1 on front of all the above.
+
+
+80 12 f1 02 21 80 26
+80 f1 12 66 61 80 0c 16 50 e0 17 50 e1 00 00 ff ff ff ff ff ff 7e 80 53 ff ff ff 80 10 ff ff ff 00 80 00 ff ff ff ff ff ff 80 ff ff ff ff 80 80 80 80 00 01 00 01 00 01 00 01 ff ff 80 00 01 00 01 00 01 ff ff ff ff 80 00 00 ff 00 00 00 80 80 80 80 80 80 80 80 80 80 ff 80 80 26 07 ff ff ff ff 00 ff 00 01 15 20 10 ff ff 9a
+--------
+80 12 f1 02 21 90 36
+80 f1 12 48 61 90 44 34 46 39 53 45 32 30 01 40 00 00 98 c0 ff c0 ff c0 ff c0 00 c0 fe c0 ff c0 ff c0 00 80 ff 80 ff c0 ff c0 ff c0 00 00 df ff 1f ff ff ff 00 ff 00 01 00 01 01 db ff ff ff ff ff ff f8 49 00 bc 70 10 a0 ff 03 e9 94
+--------
+80 12 f1 02 21 c0 66
+80 f1 12 3e 61 c0 00 dc ba cc 00 b0 70 00 98 00 07 00 ff ff ff ff ff ff ff 00 00 00 00 ff ff ff ff ff ff 80 80 80 80 80 43 40 40 40 40 6b 6b 00 ff 26 ff ff 00 00 00 00 01 22 15 20 10 00 00 00 00 ff 19
+--------
+80 12 f1 02 21 40 e6
+80 f1 12 12 61 40 16 50 e0 ff 00 00 00 ed 00 00 00 ff ff 28 ff ff 8c
+--------
+80 12 f1 02 21 41 e7
+80 f1 12 12 61 41 16 50 e0 ff 00 00 00 fb 00 00 00 ff ff 29 ff ff 9c
+-------
+80 12 f1 02 21 42 e8
+80 f1 12 12 61 42 16 50 e0 ff 00 00 00 fe 00 00 00 ff ff 2c ff ff a3
+-------
+80 12 f1 02 21 43 e9
+80 f1 12 12 61 43 16 50 e0 ff 00 00 00 fb 00 00 00 ff ff 29 ff ff 9e
+-------
+80 12 f1 02 21 44 ea
+80 f1 12 12 61 44 16 50 e0 ff 00 00 00 fb 00 00 00 ff ff 29 ff ff 9f
+-------
+80 12 f1 02 21 45 eb
+80 f1 12 12 61 45 16 50 e0 ff 00 00 00 ed 00 00 00 ff ff 28 ff ff 91
+-------
+80 12 f1 02 21 50 f6
+80 f1 12 12 61 50 17 50 e1 ff 00 00 00 ed 00 00 00 ff ff 28 ff ff 9e
+-------
+80 12 f1 02 21 51 f7
+80 f1 12 12 61 51 17 50 e1 ff 00 00 00 fb 00 00 00 ff ff 29 ff ff ae
+-------
+80 12 f1 02 21 52 f8
+80 f1 12 12 61 52 17 50 e1 ff 00 00 00 fe 00 00 00 ff ff 2c ff ff b5
+-------
+80 12 f1 02 21 53 f9
+80 f1 12 12 61 53 17 50 e1 ff 00 00 01 ff 00 00 00 ff ff 3f ff ff cb
+-------
+80 12 f1 02 21 54 fa
+80 f1 12 12 61 54 17 50 e1 ff 00 00 01 ff 00 00 00 ff ff 3f ff ff cc
+-------
+80 12 f1 02 21 55 fb
+80 f1 12 12 61 55 17 50 e1 ff 00 00 00 ed 00 00 00 ff ff 28 ff ff a3 
+
+
+
+PART ONE:
+I sent to the ECU: (initiate comms message)
+81 
+12 (destination address = ECU)
+F1 (source address = my microprocessor)
+81 (message type initiate comms)
+05 (checksum)
+
+and I received from the ECU: 
+80 
+F1 (destination address - i.e. my microprocessor)
+12 (source address - i.e. the ECU)
+03 (#bytes to follow, excluding the checksum) 
+C1 (byte#1 = ok) 
+EA (byte 2 = Key Byte 1) 
+8F (byte 3 = Key Byte 2) 
+C0 (checksum)
+
+now, the key bytes are: EA 8F, and if you have a copy of ISO 14230-2 handy, you can see in table5 that this means for all comms, our ECU:
+- uses an additional length byte
+- uses a message header that contains target and source address info
+- uses normal timing
+
+PART TWO:
+I sent to the ECU:
+80 12 F1 02 21 08 AE
+(a message to ask the ECU to dump all its sensor data)
+
+and I received back:
+80 
+F1 
+12 
+34 # of bytes in response = 52
+61 message type = sensor data
+08 13 16 50 E0 01 05 A2 
+FF FF FF FF 00 00 00 FF 
+00 00 FF 00 FF 00 FF FF 
+FF FF 00 00 00 00 FF FF 
+FF FF FF FF 40 40 FF FF 
+FF 00 FF FF FF FF 00 00 
+42 FF FF
+C9 (checksum)
+
+now all we have to do is figure out which of the bytes in the main body of this message correspond to which sensor!!
+
+cheers,
+Mark
+
+
+
+
+
+0 80 Header byte 
+1 F1 Tester ID
+2 12 ECU ID
+3 34 Message length
+4 61 Message type (Sensor data)
+5 08 
+6 02 
+7 05 
+8 05 
+9 A0 
+10 17 
+11 69 
+12 A2 
+13 FF 
+14 FF 
+15 FF 
+16 00 Speed = byte 16 * 2 in km/h
+17 00 RPM byte 1 
+18 00 RPM byte 2: RPM = 10 * byte 17 +byte 18 / 10
+19 37 Throttle position: 0x37 = 0%, 0xDD = 100%
+20 B8 
+21 6B Engine Temperature = (byte 21 - 48) / 1.6 in Celsius degrees
+22 61 Intake Air Temperature, same formula as above
+23 B9 
+24 00 
+25 FF 
+26 00 Gear indicator 0-neutral; 1- 1st gear... a.s.o.
+27 FF 
+28 5E 
+29 1F 
+30 FF 
+31 00 
+32 00 
+33 00 
+34 00 
+35 00 
+36 00 
+37 00 
+38 00 
+39 FF 
+40 FF 
+41 40 
+42 40 
+43 40 
+44 40 
+45 FF 
+46 1A 
+47 00 
+48 CB 
+49 1A 
+50 30 
+51 00
+52 04 Clutch sensor (bit 8?): 0x04 = clutch released, 0x14 clutch "pressed"
+53 00 Neutral sensor (bit 1?): 0x00 = neutral, 0x02 = in gear 
+54 FF 
+55 FF 
+56 07 Checksum
+
+ 
+http://ecuhacking.activeboard.com/t22573776/sds-protocol/?page=3&sort=oldestFirst
+
+
+
+
+0x80+service+value+0x03
+
+
+
+
+
+
+/BYTE postion startIGN at 0
+#define header_format      0x00  // 0
+#define header_destination 0x01  // 1
+#define header_source      0x02  // 2
+#define payload            0x03  // 3 CURRENT PAYLOAD + PAYLOAD + 1 FOR CHECKSUM = TOTAL BYTES
+#define response_type      0x04  // 4
+#define wideband1          0x0D  // 13
+#define wideband2          0X0E  // 14
+#define BOOST              0x0F  // 15 //BOOST((value / 50.5) * 9.2) - 14.7)
+#define BOOST2             0x10  // 16
+#define RPM1               0x11  // 17 rpmhi //RPM = (rxByteHi*256 + rxByteLo) / 2.56
+#define RPM2               0x12  // 18 rpmlo
+#define TPS                0x13  // 19  TPS = 125*(rxByte-55)/(256-55)
+#define IP                 0x14  // 20  IP intake pressure IP = rxByte*4*0.136
+#define ECT                0x15  // 21  engine coolant ECT = 1.1 * (rxByte - 15)
+#define IAT                0x16  // 22  intake air temp IAT = 1.1 * (buf[Iat] - 15) 
+#define AP                 0X17  // 23  AIR PRESSURE   (IAP = AP -IP)
+#define BATT               0x18  // 24  BATTERY  VOLTS = rxByte / 12.7
+#define HO2                0x19  // 25  O2 sensor
+#define GPS                0x1A  // 26  gear position
+#define FUELhi1            0x1F  // 31
+#define FUELlo1            0x20  // 32
+#define FUELhi2            0x21  // 33
+#define FUELlo2            0x22  // 34   FUEL = (rxByteHi*256 + rxByteLo) / 25.6
+#define FUELhi3            0x23  // 35   FUEL = (256 * FUELhi) + FUELlo
+#define FUELlo3            0x24  // 36   FUEL = ((buf[FUELhi2 * 256) + buf[FUELlo2]) / / 25.6;
+#define FUELhi4            0x25  // 37
+#define FUELlo4            0x26  // 38
+#define IGN1               0x29  // 41
+#define IGN2               0x2A  // 42  IGN = 0.4*rxByte - 12.5
+#define IGN3               0x2B  // 43  ignition adv = (0.4 * value) - 12.5
+#define IGN4               0x2C  // 44 
+#define STP                0x2E  // 46  STP = rxByte / 2.55
+#define PAIR               0x33  // 51
+#define CLUTCH             0X34  // 52   //& 0x10
+#define MS                 0x34  // 52  //& 0x01
+#define NEUTRAL            0X35  // 53  //& 0x02
+#define HOX_ON             0x35  // 53
+#define BOOST3             0X37  // 55
+#define CHECKSUM           0x38  // 56
+//AFR: " + CalcAFR(HO2).ToStrIGN("00.00")
+//Wideband = Wideband0V + range * (rxByte / 1023)
+//Pressure ((value * 4) * 0.136)
+//Temp = ((value - 32) * 5 / 9)
+
+
+
+---------------------------------------------------
+0	Send	"0x80"		Header
+1	Send	"0x12"		Adress
+2	Send	"0xF1"		Adress
+3	Send	"0x02"		Databits
+4	Send	"0x21"		Function
+5	Send	"0x08"		Fumction
+6	Send	"0xAE"		Checksum
+---------------------------------------------------
+0	Recv	"0x80"	128	Header
+1	Recv	"0x12"	18	Adress
+2	Recv	"0xF1"	241	Adress
+3	Recv	"0x02"		Databits
+4	Recv	"0x21"		Function
+5	Recv	"0x08"		Fumction
+6	Recv	"0xAE"		Checksum
+7-1	Recv	"0x80"	128	Header
+8-2	Recv	"0xF1"	241	Adress
+9-3	Recv	"0x12"	18	Adress
+10-4	Recv	"0x34"	52	Databits
+11-5	Recv	"0x61"	97	Function
+12-6	Recv	"0x08"	8	Function
+13-7	Recv	
+14-8	Recv	
+15-9	Recv	
+16-10	Recv
+17-11	Recv	
+18-12	Recv	
+19-13	Recv	
+20-14	Recv	# AFR				0=10 FF=967,2					# (DATA14/(255/957,2)+10)+(DATA15/(255/3,7))
+21-15	Recv	# AFR				0=10 FF=13,7					# 
+22-16	Recv	* BOOST
+23-17	Recv	* SPEED KMH									# DATA16*2			
+24-18	Recv	RPM 				0=0 255=25500					# (DATA18*100)+(DATA19/255*100)
+25-19	Recv	RPM 				0=0 255=100					#
+26-20	Recv	TPS 				55-224						# (DATA20 - 55) * 100 / (224-55);
+27-21	Recv	IAP Intake Air Pressure 	161 0=-14,3 255=109,1
+28-22	Recv	ECT Engine Temp			88=25 89=26 108=37 118=43 125=48 134=53 146=60  # (DATA22 - 48)/160*100
+29-23	Recv	IAT Intake Temp			88=25 89=26 108=37 118=43 125=48 134=53 146=60	# (DATA23 - 48)/160*100
+30-24	Recv	OAP Outside Air Pressure 	161
+31-25	Recv	* Batt Voltage 			12,5=161					# Data / 12,5
+32-26	Recv	* O2 Sensor			0x01=18,2 0x05=17,9 0x22=14,0 0x28=13,6 0x30=11,8 0x31=11,5
+33-27	Recv	GPS Gear PositionPS		0=Neutral 1=1
+34-28	Recv	
+35-29	Recv	
+36-30	Recv	
+37-31	Recv	
+38-32	Recv	* FUEL HI 1
+39-33	Recv	* FUEL LO 1
+40-34	Recv	* FUEL HI 2
+41-35	Recv	* FUEL LO 2
+42-36	Recv	* FUEL HI 3
+43-37	Recv	* FUEL LO 3
+44-38	Recv	* FUEL HI 4
+45-39	Recv	* FUEL LO 4
+46-40	Recv	
+47-41	Recv	
+48-42	Recv	# IGN1				0=-12,5 33=7,9 40=13,1 88=41,9 255=89,5 		
+49-43	Recv	# IGN2
+50-44	Recv	# IGN3
+51-45	Recv	# IGN4
+52-46	Recv	
+53-47	Recv	Second Throtle Valve Position TPS 0-255						# DATA47 * 255/ 100;
+54-48	Recv	
+55-49	Recv	
+56-50	Recv	
+57-51	Recv	
+58-52	Recv	Pair				0=close	FF=open
+59-53	Recv	CLUTCH / MAP SELECT 								# Clutch close = 0x05/0x04 - Clutch open = 0x14/0x15 - MS0 = 0x04/0x14 - MS1 = 0x05/0x15
+60-54	Recv	Neutral=8 Gear=10
+61-55	Recv	* HOX ON
+62-56	Recv	* BOOST 3
+63-57	Recv	Checksum
+
+
+
+0=10 FF=970,9
+
+
+Air Pressure = Intake Air Pressure - Outside Air Pressure
+
+
+
