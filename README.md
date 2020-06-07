@@ -1,9 +1,9 @@
 # Datalogger
-Engine dataloging on Suzuki/Kawasaki ecc. Motorcycles
+Dataloging on Suzuki/Kawasaki ecc. Motorbikes
 
-In the files you will find a code for a working telemetry/gps datalogger for the sds kds diagnostic interface compatible to suzuki and kawasiki bikes. The interface uses the k-line like obd whit a protocol similar to the kwp 2000.
-The average Timegap between the recordings is about 135ms due protocoll overhead, if you use ecueditor on your bike you can obtain values up to 50ms by adjusting baudrate in your ecu flash. The recording starts stops everytime the bike engine runs.
-You can use it for wahtever you want, maybee for your racetrack or videoediting like me?
+In the files you will find a code for a working telemetry/gps datalogger that has been tested on a Suzuki gsxr 1000 k5, it should run on other Suzuki and kawasaki bikes too.
+The interface is a standard k-line interface found in obd interfaces for cars and the protocol is similar to the kwp2000.
+The fastest stable sensor dataframe recording speed is 135ms.
 
 https://www.youtube.com/watch?v=1dpbyCEGibE&t=4s
 
